@@ -1,5 +1,4 @@
 # FireMiner
----
 
 A simple telegram bot for monitoring mining rigs.
 
@@ -9,7 +8,7 @@ A simple telegram bot for monitoring mining rigs.
   - `/reboot SECRET` - Reboots the rig if the secret is correct.
   - `/shutdown SECRET` - Shutdown the rig if the secret is correct.
   - `/startMiner` - Start the mining software (useful after a reboot).
-  
+
 ## Environment Variables
 
   In order to this bot work corretly some enviroment variables must be set:
@@ -22,4 +21,4 @@ A simple telegram bot for monitoring mining rigs.
 
 ## Miner Softwares Supported
 
-  At this moment only [EWBF Cuda Miner](https://github.com/nanopool/ewbf-miner), but contribution are welcome!
+  At this moment only [EWBF Cuda Miner](https://github.com/nanopool/ewbf-miner), but contributions are welcome!
