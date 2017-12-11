@@ -1,3 +1,5 @@
 vendor/
 .env
 debug
+fire-miner
+fire_miner.exe

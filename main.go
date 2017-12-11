@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fire-miner/app"
+	"fire-miner/app/bot"
 	_ "github.com/joho/godotenv/autoload"
 )
 
