@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
+	"strings"
 	"time"
 
 	teleBot "gopkg.in/tucnak/telebot.v2"
@@ -34,20 +36,34 @@ func Init() {
 
 	bot.Handle("/shutdown", func(message *teleBot.Message) {
 
-		if message.Payload == os.Getenv("SECRET") {
+		contents := strings.Split(message.Payload, " ")
+		if len(contents) >= 2 && contents[0] == os.Getenv("WORKER_ID") && contents[1] == os.Getenv("SECRET") {
 			bot.Send(message.Sender, "Shutdown started...")
 
-			command := exec.Command("shutdown", "-s", "-f")
+			var command *exec.Cmd
+			if runtime.GOOS == "linux" {
+				command = exec.Command("sudo shutdown", "now")
+			} else if runtime.GOOS == "windows" {
+				command = exec.Command("shutdown", "-s", "-f")
+			}
+
 			command.Start()
 		}
 	})
 
 	bot.Handle("/reboot", func(message *teleBot.Message) {
 
-		if message.Payload == os.Getenv("SECRET") {
+		contents := strings.Split(message.Payload, " ")
+		if len(contents) >= 2 && contents[0] == os.Getenv("WORKER_ID") && contents[1] == os.Getenv("SECRET") {
 			bot.Send(message.Sender, "Reboot started...")
 
-			command := exec.Command("shutdown", "-r", "-f")
+			var command *exec.Cmd
+			if runtime.GOOS == "linux" {
+				command = exec.Command("sudo reboot")
+			} else if runtime.GOOS == "windows" {
+				command = exec.Command("shutdown", "-r", "-f")
+			}
+
 			command.Start()
 		}
 	})
@@ -55,7 +71,7 @@ func Init() {
 	bot.Handle("/startMiner", func(message *teleBot.Message) {
 
 		command := exec.Command(os.Getenv("MINER_COMMAND"))
-		command.Start()
+		command.Run()
 
 		bot.Send(message.Sender, "Miner started...")
 	})

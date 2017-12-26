@@ -1,6 +1,7 @@
 package models
 
 type EwbfResult struct {
+	Error  string   `json:"error"`
 	Result []Result `json:"result"`
 }
 
