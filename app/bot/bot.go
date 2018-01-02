@@ -20,14 +20,20 @@ func Init() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 
 	bot.Handle("/status", func(message *teleBot.Message) {
 
-		result, _ := api.Status(os.Getenv("TARGET"))
-		replyMessage := messageCreator.Create(result)
+		result, err := api.Status(os.Getenv("TARGET"))
+		var replyMessage string
+		if err == nil {
+			replyMessage = messageCreator.Create(result)
+		} else {
+			log.Println("["+os.Getenv("WORKER_ID")+"]Error retrieving data from API, seems it is offline.", err)
+			replyMessage = "[" + os.Getenv("WORKER_ID") + "] Error retrieving data from API, seems it is offline."
+		}
 
 		bot.Send(message.Sender, replyMessage, &teleBot.SendOptions{
 			ParseMode: "Markdown",
@@ -42,7 +48,7 @@ func Init() {
 
 			var command *exec.Cmd
 			if runtime.GOOS == "linux" {
-				command = exec.Command("sudo shutdown", "now")
+				command = exec.Command("sudo", "systemctl", "reboot")
 			} else if runtime.GOOS == "windows" {
 				command = exec.Command("shutdown", "-s", "-f")
 			}
@@ -59,7 +65,8 @@ func Init() {
 
 			var command *exec.Cmd
 			if runtime.GOOS == "linux" {
-				command = exec.Command("sudo reboot")
+				log.Println("Rebooting now...")
+				command = exec.Command("sudo", "systemctl", "reboot")
 			} else if runtime.GOOS == "windows" {
 				command = exec.Command("shutdown", "-r", "-f")
 			}

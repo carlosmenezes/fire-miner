@@ -11,22 +11,22 @@ func Status(uri string) (ewbfResult models.EwbfResult, err error) {
 
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Println("NewRequest: ", err)
 		return
 	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Println("Do: ", err)
 		return
 	}
 
 	defer resp.Body.Close()
 
 	if err := json.NewDecoder(resp.Body).Decode(&ewbfResult); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
-	return
+	return ewbfResult, nil
 }
