@@ -15,9 +15,26 @@ const baseMessage = `*GPU%d:* %s
     %d accepted, %d rejected
 `
 
-func Create(ewbfResult models.EwbfResult) string {
+func Create(jsonData interface{}) string {
+
+	var message string
+
+	switch value := jsonData.(type) {
+	case models.EwbfResult:
+		message = createEwbfMessage(value)
+	case models.BMinerResult:
+		message = createBMinerMessage(value)
+	default:
+		message = "unknown miner"
+	}
+
+	return message
+}
+
+func createEwbfMessage(ewbfResult models.EwbfResult) string {
 
 	message := ""
+
 	for _, result := range ewbfResult.Result {
 
 		if len(message) > 0 {
@@ -30,10 +47,10 @@ func Create(ewbfResult models.EwbfResult) string {
 			result.AcceptedShares, result.RejectedShares,
 		)
 	}
-	return makeHeader(ewbfResult) + "\n" + message
+	return makeEwbfHeader(ewbfResult) + "\n" + message
 }
 
-func makeHeader(ewbfResult models.EwbfResult) string {
+func makeEwbfHeader(ewbfResult models.EwbfResult) string {
 	header := "*%s - Status*\n"
 
 	if len(ewbfResult.Error) > 0 {
@@ -41,4 +58,9 @@ func makeHeader(ewbfResult models.EwbfResult) string {
 	}
 
 	return fmt.Sprintf(header, os.Getenv("WORKER_ID"))
+}
+
+func createBMinerMessage(bminerResult models.BMinerResult) string {
+	message := ""
+	return message
 }
