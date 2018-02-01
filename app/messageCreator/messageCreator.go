@@ -6,13 +6,23 @@ import (
 	"os"
 )
 
-const baseMessage = `*GPU%d:* %s
+const baseEwbfMessage = `*GPU%d:* %s
   *Temperature:* %d C
   *Power usage:* %d W
   *Performance:* %d Sol/s
   *Efficiency:* %.2f Sol/W
   *Shares:*
     %d accepted, %d rejected
+`
+
+const baseBMinerMessage = `*GPU%s:*
+  *Temperature:* %.0f C
+  *Power usage:* %.0f W
+  *Performance:* %.2f Sol/s
+  *Efficiency:* %.2f Sol/W
+  *Clocks:*
+    %0.f Mhz core
+    %.0f Mhz memory
 `
 
 func Create(jsonData interface{}) string {
@@ -41,7 +51,7 @@ func createEwbfMessage(ewbfResult models.EwbfResult) string {
 			message = message + "\n"
 		}
 
-		message = message + fmt.Sprintf(baseMessage,
+		message = message + fmt.Sprintf(baseEwbfMessage,
 			result.GpuID, result.Name, result.Temperature, result.PowerUsage,
 			result.SolsPerSecond, float32(result.SolsPerSecond)/float32(result.PowerUsage),
 			result.AcceptedShares, result.RejectedShares,
@@ -61,6 +71,26 @@ func makeEwbfHeader(ewbfResult models.EwbfResult) string {
 }
 
 func createBMinerMessage(bminerResult models.BMinerResult) string {
+
 	message := ""
-	return message
+	for _, result := range bminerResult.MinersList() {
+		if len(message) > 0 {
+			message = message + "\n"
+		}
+
+		message = message + fmt.Sprintf(baseBMinerMessage,
+			result.Id, result.Device.Temperature, result.Device.Power,
+			result.Solver.SolutionRate, (result.Solver.SolutionRate/result.Device.Power),
+			result.Device.CoreClock, result.Device.MemoryClock,
+		)
+	}
+
+	return fmt.Sprintf("*%s - Status*\n", os.Getenv("WORKER_ID")) + message + createBMinerFooter(bminerResult)
+}
+
+func createBMinerFooter(bminerResult models.BMinerResult) string {
+	baseFooter := `
+*Shares:*
+  %d accepted, %d rejected`
+	return fmt.Sprintf(baseFooter, bminerResult.Stratum.AcceptedShares, bminerResult.Stratum.RejectedShares)
 }
