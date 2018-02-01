@@ -26,7 +26,15 @@ func Init() {
 
 	bot.Handle("/status", func(message *teleBot.Message) {
 
-		result, err := api.Status(os.Getenv("TARGET"))
+		var result interface{}
+		var err error
+		switch os.Getenv("MINER") {
+		case "ewbf":
+			result, err = api.EwbfStatus(os.Getenv("TARGET"))
+		case "bminer":
+			result, err = api.BMinerStatus(os.Getenv("TARGET"))
+		}
+
 		var replyMessage string
 		if err == nil {
 			replyMessage = messageCreator.Create(result)
